@@ -79,20 +79,17 @@ const CONFIG = {
       '', // Empty fileUrl will hide the `Download Resume` button.
   },
   skills: [
-    'PHP',
-    'Laravel',
     'JavaScript',
+    'TypeScript',
     'React.js',
     'Node.js',
-    'Nest.js',
-    'MySQL',
-    'PostgreSQL',
+    'Express.js',
+    'SQL',
+    'NoSQL',
+    'Python',
+    'C#',
     'Git',
     'Docker',
-    'PHPUnit',
-    'CSS',
-    'Antd',
-    'Tailwind',
   ],
 /*   experiences: [
     {
@@ -105,10 +102,10 @@ const CONFIG = {
   ], */
   certifications: [
     {
-      name: 'Google',
-      body: 'Cybersecurity<br />•\tData Analytics<br />•\tAdvanced Data Analytics<br />•\tIT Support<br />•\tBusiness Intelligence',
-      year: 'March 2022',
-      link: 'https://example.com',
+      name: 'Univercity of Michigan',
+      body: 'Python for Everybody',
+      year: 'June 2023',
+      link: '',
     },
   ],
   educations: [
