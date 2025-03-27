@@ -15,10 +15,8 @@ const projects = [
     link: "https://github.com/yourusername/project2",
     technologies: ["Python", "Django", "PostgreSQL"]
   },
-  // Add more projects as needed
 ];
 
-// Initial window positions with proper gaps
 const gaps = 8;
 const windows = [
   { 
@@ -57,48 +55,50 @@ const windows = [
 ---
 
 <Layout title="HYPRFOLIO">
-  <Window title="profile" style={`left: ${windows[0].left}; top: ${windows[0].top}; width: ${windows[0].width}; height: ${windows[0].height}; z-index: ${windows[0].zIndex};`}>
-    <div class="text-[#a9b1d6] text-sm leading-relaxed">
-      <div class="text-[#7aa2f7]">$ whoami</div>
-      <div class="mt-2">Your Name</div>
-      <div class="text-[#565f89]">Software Developer & Linux Enthusiast</div>
-    </div>
-  </Window>
-
-  <Window title="about.txt" style={`left: ${windows[1].left}; top: ${windows[1].top}; width: ${windows[1].width}; height: ${windows[1].height}; z-index: ${windows[1].zIndex};`}>
-    <div class="text-[#a9b1d6] text-sm leading-relaxed">
-      <div class="text-[#7aa2f7]">$ cat about.txt</div>
-      <div class="mt-2 text-[#565f89] whitespace-pre-wrap">A passionate developer who loves creating elegant solutions to complex problems. Currently focused on web development and Linux system administration.</div>
-    </div>
-  </Window>
-
-  <Window title="projects/" style={`left: ${windows[2].left}; top: ${windows[2].top}; width: ${windows[2].width}; height: ${windows[2].height}; z-index: ${windows[2].zIndex};`}>
-    <div class="text-[#a9b1d6] text-sm leading-relaxed">
-      <div class="text-[#7aa2f7]">$ ls projects/</div>
-      
-      <div class="mt-2">
-        <div class="text-[#7aa2f7]">Project 1</div>
-        <div class="text-[#565f89]">A brief description of your first project</div>
-        <div class="text-[#414868]">TypeScriptReactNode.js</div>
-        <a href="#" class="text-[#7aa2f7] hover:underline">View on GitHub →</a>
+  <div class="relative w-full h-full">
+    <Window title="profile" style={`left: ${windows[0].left}; top: ${windows[0].top}; width: ${windows[0].width}; height: ${windows[0].height}; z-index: ${windows[0].zIndex};`}>
+      <div class="text-[#a9b1d6] text-sm leading-relaxed">
+        <div class="text-[#7aa2f7]">$ whoami</div>
+        <div class="mt-2">Your Name</div>
+        <div class="text-[#565f89]">Software Developer & Linux Enthusiast</div>
       </div>
+    </Window>
 
-      <div class="mt-4">
-        <div class="text-[#7aa2f7]">Project 2</div>
-        <div class="text-[#565f89]">A brief description of your second project</div>
-        <div class="text-[#414868]">PythonDjangoPostgreSQL</div>
-        <a href="#" class="text-[#7aa2f7] hover:underline">View on GitHub →</a>
+    <Window title="about.txt" style={`left: ${windows[1].left}; top: ${windows[1].top}; width: ${windows[1].width}; height: ${windows[1].height}; z-index: ${windows[1].zIndex};`}>
+      <div class="text-[#a9b1d6] text-sm leading-relaxed">
+        <div class="text-[#7aa2f7]">$ cat about.txt</div>
+        <div class="mt-2 text-[#565f89] whitespace-pre-wrap">A passionate developer who loves creating elegant solutions to complex problems. Currently focused on web development and Linux system administration.</div>
       </div>
-    </div>
-  </Window>
+    </Window>
 
-  <Window title="contact" style={`left: ${windows[3].left}; top: ${windows[3].top}; width: ${windows[3].width}; height: ${windows[3].height}; z-index: ${windows[3].zIndex};`}>
-    <div class="text-[#a9b1d6] text-sm leading-relaxed">
-      <div class="flex gap-4">
-        <a href="#" class="text-[#7aa2f7] hover:underline">GitHub →</a>
-        <a href="#" class="text-[#7aa2f7] hover:underline">LinkedIn →</a>
-        <a href="#" class="text-[#7aa2f7] hover:underline">Email →</a>
+    <Window title="projects/" style={`left: ${windows[2].left}; top: ${windows[2].top}; width: ${windows[2].width}; height: ${windows[2].height}; z-index: ${windows[2].zIndex};`}>
+      <div class="text-[#a9b1d6] text-sm leading-relaxed">
+        <div class="text-[#7aa2f7]">$ ls projects/</div>
+        
+        <div class="mt-2">
+          <div class="text-[#7aa2f7]">Project 1</div>
+          <div class="text-[#565f89]">A brief description of your first project</div>
+          <div class="text-[#414868]">TypeScriptReactNode.js</div>
+          <a href="#" class="text-[#7aa2f7] hover:underline">View on GitHub →</a>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-[#7aa2f7]">Project 2</div>
+          <div class="text-[#565f89]">A brief description of your second project</div>
+          <div class="text-[#414868]">PythonDjangoPostgreSQL</div>
+          <a href="#" class="text-[#7aa2f7] hover:underline">View on GitHub →</a>
+        </div>
       </div>
-    </div>
-  </Window>
+    </Window>
+
+    <Window title="contact" style={`left: ${windows[3].left}; top: ${windows[3].top}; width: ${windows[3].width}; height: ${windows[3].height}; z-index: ${windows[3].zIndex};`}>
+      <div class="text-[#a9b1d6] text-sm leading-relaxed">
+        <div class="flex gap-4">
+          <a href="#" class="text-[#7aa2f7] hover:underline">GitHub →</a>
+          <a href="#" class="text-[#7aa2f7] hover:underline">LinkedIn →</a>
+          <a href="#" class="text-[#7aa2f7] hover:underline">Email →</a>
+        </div>
+      </div>
+    </Window>
+  </div>
 </Layout> 

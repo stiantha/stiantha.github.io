@@ -1,70 +1,19 @@
 <div class="waybar">
   <!-- Left section -->
   <div class="flex items-center gap-1">
-    <div class="workspace">1</div>
-    <div class="workspace active">2</div>
-    <div class="workspace">3</div>
-    <div class="workspace">4</div>
-    <div class="workspace">5</div>
-    <div class="flex items-center gap-1 ml-1">
-      <span class="text-[#e0af68]">󰊤</span>
-      <span>GitHub</span>
-    </div>
+    <div class="workspace active">HYPRFOLIO</div>
+    <div class="workspace">PORTFOLIO</div>
   </div>
 
-  <!-- Center section -->
-  <div class="text-[#7aa2f7]">
-    HYPRFOLIO
-  </div>
 
   <!-- Right section -->
   <div class="flex items-center gap-2">
-    <div class="flex items-center gap-1">
-      <span class="text-[#e0af68]">󰔏</span>
-      <span class="opacity-90">52°C</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span>󰍛</span>
-      <span class="opacity-90">48%</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span>󰋊</span>
-      <span class="opacity-90">16%</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span>󰖲</span>
-    </div>
     <div class="flex items-center gap-1" id="clock">
-      <span>󰥔</span>
       <span class="opacity-90"></span>
     </div>
-    <div class="flex items-center gap-1">
-      <span>󰃭</span>
-      <span class="opacity-90">02-22</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span>󰤨</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span>󰖩</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span>󰇚</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span class="text-[#e0af68]">󱊣</span>
-      <span class="opacity-90">38%</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span class="text-[#9ece6a]">󰂄</span>
-      <span class="opacity-90">60%</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span>󰁹</span>
-      <span class="opacity-90">53%</span>
-    </div>
-    <div class="flex items-center gap-1">
-      <span class="text-[#f7768e]">󰐥</span>
+    |
+    <div class="flex items-center gap-1" id="date">
+      <span class="opacity-90"></span>
     </div>
   </div>
 </div>
@@ -81,6 +30,24 @@
       });
     }
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+
+  function updateDate() {
+    const dateSpan = document.querySelector('#date span:last-child');
+    if (dateSpan) {
+      const now = new Date();
+      dateSpan.textContent = now.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+  }
+
+  // Update both clock and date
+  function updateAll() {
+    updateClock();
+    updateDate();
+  }
+
+  setInterval(updateAll, 1000);
+  updateAll();
 </script> 
