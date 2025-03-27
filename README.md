@@ -1,6 +1,6 @@
 # Linux-Inspired Portfolio
 
-[![Deploy static content to Pages](https://github.com/stiantha/stiantha.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/stiantha/stiantha.github.io/actions/workflows/deploy.yml)
+[![Deploy static content to Pages](https://github.com/stiantha/stiantha.github.io/actions/workflows/static.yml/badge.svg)](https://github.com/stiantha/stiantha.github.io/actions/workflows/static.yml)
 
 A minimalistic portfolio website built with Astro, inspired by Linux and Hyprland aesthetics.
 
