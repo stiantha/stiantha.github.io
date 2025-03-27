@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@layer base {
+  @font-face {
+    font-family: 'Symbols Nerd Font';
+    src: url('/fonts/Symbols-2048-em Nerd Font Complete.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  html {
+    @apply bg-[#1a1b26] text-[#a9b1d6] font-mono;
+  }
+
+  body {
+    @apply min-h-screen overflow-hidden;
+  }
+
+  /* Apply Nerd Font to icons */
+  span:not([class]) {
+    font-family: 'Symbols Nerd Font', monospace;
+  }
+}
+
+@layer components {
+  /* Layout */
+  .layout {
+    @apply flex flex-col h-screen;
+  }
+
+  .main-content {
+    @apply flex-1 relative h-[calc(100vh-28px)] mt-[28px] overflow-hidden;
+  }
+
+  /* Window */
+  .window {
+    @apply fixed min-w-[300px] min-h-[200px] bg-[#1a1b26]/95 border border-[#24283b] 
+           rounded shadow-lg backdrop-blur-md transition-all duration-150 ease-in-out;
+  }
+
+  .window.active-window {
+    @apply border-[#7aa2f7] shadow-[0_0_30px_rgba(122,162,247,0.3)] z-10;
+  }
+
+  .window.selected-window {
+    @apply border-[#bb9af7] shadow-[0_0_30px_rgba(187,154,247,0.3)] z-20;
+  }
+
+  .window-header {
+    @apply flex items-center gap-2 p-2 h-8 border-b border-[#24283b] rounded-t 
+           bg-[#1a1b26]/95 select-none;
+  }
+
+  .window-controls {
+    @apply flex gap-2;
+  }
+
+  .window-control {
+    @apply w-3 h-3 rounded-full transition-transform hover:scale-110;
+  }
+
+  .window-title {
+    @apply flex-1 text-left text-sm text-[#a9b1d6]/80 pl-2;
+  }
+
+  .window-content {
+    @apply p-4 h-[calc(100%-32px)] overflow-y-auto font-mono leading-relaxed;
+  }
+
+  /* Waybar */
+  .waybar {
+    @apply fixed top-0 left-0 w-full h-7 bg-[#0f0f0f] text-[#a9b1d6] 
+           font-mono text-xs flex justify-between items-center px-2 z-50 select-none;
+  }
+
+  .workspace {
+    @apply px-2 py-0.5 text-[#414868];
+  }
+
+  .workspace.active {
+    @apply bg-[#7aa2f7] text-[#1a1b26] rounded;
+  }
+}
+
+@layer utilities {
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-1 h-1;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[#24283b] rounded hover:bg-[#7aa2f7];
+  }
+}

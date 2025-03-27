@@ -1,6 +1,4 @@
 ---
-import '../styles/window.css';
-
 interface Props {
   title: string;
   style?: string;
@@ -11,6 +9,11 @@ const { title, style } = Astro.props;
 
 <div class="window" style={style}>
   <div class="window-header">
+    <div class="window-controls">
+      <div class="window-control bg-[#ff5f57]"></div>
+      <div class="window-control bg-[#febc2e]"></div>
+      <div class="window-control bg-[#28c840]"></div>
+    </div>
     <div class="window-title">{title}</div>
   </div>
   <div class="window-content">
