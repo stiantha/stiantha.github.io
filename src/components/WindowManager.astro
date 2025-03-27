@@ -1,0 +1,283 @@
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const windows = document.querySelectorAll<HTMLElement>('.window');
+    let activeWindow: HTMLElement | null = null;
+    let selectedWindow: HTMLElement | null = null;
+    const gaps = 12;
+
+    // Window focus management
+    windows.forEach(window => {
+      window.addEventListener('mousedown', () => {
+        windows.forEach(w => w.style.zIndex = '1');
+        window.style.zIndex = '10';
+        setActiveWindow(window);
+      });
+    });
+
+    function setActiveWindow(window: HTMLElement | null) {
+      windows.forEach(w => w.classList.remove('active-window'));
+      activeWindow = window;
+      if (activeWindow) {
+        activeWindow.classList.add('active-window');
+      }
+    }
+
+    function setSelectedWindow(window: HTMLElement | null) {
+      windows.forEach(w => w.classList.remove('selected-window'));
+      selectedWindow = window;
+      if (selectedWindow) {
+        selectedWindow.classList.add('selected-window');
+      }
+    }
+
+    // Window management with keyboard
+    document.addEventListener('keydown', (e) => {
+      if (!activeWindow && !selectedWindow) return;
+
+      const workspace = document.querySelector<HTMLElement>('main');
+      if (!workspace) return;
+      
+      // Select windows with Shift + Arrow keys
+      if (e.shiftKey) {
+        e.preventDefault();
+        const windowArray = Array.from(windows);
+        const currentIndex = windowArray.indexOf(selectedWindow || activeWindow!);
+        let newIndex = currentIndex;
+
+        switch (e.key) {
+          case 'ArrowLeft':
+            newIndex = Math.max(0, currentIndex - 1);
+            break;
+          case 'ArrowRight':
+            newIndex = Math.min(windowArray.length - 1, currentIndex + 1);
+            break;
+          case 'ArrowUp':
+            newIndex = Math.max(0, currentIndex - 2);
+            break;
+          case 'ArrowDown':
+            newIndex = Math.min(windowArray.length - 1, currentIndex + 2);
+            break;
+        }
+
+        if (newIndex !== currentIndex) {
+          setSelectedWindow(windowArray[newIndex]);
+          setActiveWindow(windowArray[newIndex]);
+        }
+      }
+
+      // Move windows with Alt + Arrow keys
+      if (e.altKey) {
+        e.preventDefault();
+        const targetWindow = selectedWindow || activeWindow;
+        if (!targetWindow) return;
+
+        switch (e.key) {
+          case 'ArrowLeft':
+            swapWithNeighbor(targetWindow, 'left');
+            break;
+          case 'ArrowRight':
+            swapWithNeighbor(targetWindow, 'right');
+            break;
+          case 'ArrowUp':
+            swapWithNeighbor(targetWindow, 'up');
+            break;
+          case 'ArrowDown':
+            swapWithNeighbor(targetWindow, 'down');
+            break;
+        }
+      }
+      
+      // Resize windows with Ctrl + Arrow keys
+      if (e.ctrlKey) {
+        e.preventDefault();
+        const targetWindow = selectedWindow || activeWindow;
+        if (!targetWindow) return;
+
+        const action = {
+          ArrowLeft: 'shrink-width',
+          ArrowRight: 'grow-width',
+          ArrowUp: 'shrink-height',
+          ArrowDown: 'grow-height'
+        }[e.key] as 'grow-width' | 'shrink-width' | 'grow-height' | 'shrink-height';
+
+        if (action) {
+          resizeWindowByPercent(targetWindow, action);
+        }
+      }
+    });
+
+    function swapWithNeighbor(window: HTMLElement, direction: 'left' | 'right' | 'up' | 'down') {
+      const rect = window.getBoundingClientRect();
+      const neighbors = Array.from(windows).filter(w => w !== window);
+      
+      // Find the closest neighbor in the specified direction
+      const neighbor = neighbors.reduce((closest, current) => {
+        const currentRect = current.getBoundingClientRect();
+        
+        // Check if the window is in the correct direction
+        const isValidDirection = (
+          (direction === 'left' && currentRect.right <= rect.left) ||
+          (direction === 'right' && currentRect.left >= rect.right) ||
+          (direction === 'up' && currentRect.bottom <= rect.top) ||
+          (direction === 'down' && currentRect.top >= rect.bottom)
+        );
+
+        if (!isValidDirection) return closest;
+
+        // Calculate distance between windows
+        const distance = Math.hypot(
+          (currentRect.left + currentRect.width/2) - (rect.left + rect.width/2),
+          (currentRect.top + currentRect.height/2) - (rect.top + rect.height/2)
+        );
+
+        return (!closest || distance < closest.distance) ? { element: current, distance } : closest;
+      }, null as { element: HTMLElement, distance: number } | null);
+
+      if (neighbor) {
+        // Swap positions with the neighbor
+        const windowPos = {
+          left: window.style.left,
+          top: window.style.top,
+          width: window.style.width,
+          height: window.style.height
+        };
+
+        const neighborElement = neighbor.element;
+        window.style.left = neighborElement.style.left;
+        window.style.top = neighborElement.style.top;
+        window.style.width = neighborElement.style.width;
+        window.style.height = neighborElement.style.height;
+
+        neighborElement.style.left = windowPos.left;
+        neighborElement.style.top = windowPos.top;
+        neighborElement.style.width = windowPos.width;
+        neighborElement.style.height = windowPos.height;
+      }
+    }
+
+    function resizeWindowByPercent(window: HTMLElement, action: 'grow-width' | 'shrink-width' | 'grow-height' | 'shrink-height') {
+      const workspace = document.querySelector<HTMLElement>('main')!;
+      const workspaceRect = workspace.getBoundingClientRect();
+      const rect = window.getBoundingClientRect();
+      const percent = 0.05; // 5% change
+
+      // Remove transition for instant resize
+      window.style.transition = 'none';
+      
+      switch (action) {
+        case 'grow-width': {
+          const increase = workspaceRect.width * percent;
+          const newWidth = Math.min(rect.width + increase, workspaceRect.width - rect.left - gaps);
+          window.style.width = `${newWidth}px`;
+          break;
+        }
+        case 'shrink-width': {
+          const decrease = workspaceRect.width * percent;
+          const newWidth = Math.max(300, rect.width - decrease);
+          window.style.width = `${newWidth}px`;
+          break;
+        }
+        case 'grow-height': {
+          const increase = workspaceRect.height * percent;
+          const newHeight = Math.min(rect.height + increase, workspaceRect.height - rect.top - gaps);
+          window.style.height = `${newHeight}px`;
+          break;
+        }
+        case 'shrink-height': {
+          const decrease = workspaceRect.height * percent;
+          const newHeight = Math.max(200, rect.height - decrease);
+          window.style.height = `${newHeight}px`;
+          break;
+        }
+      }
+
+      // Force reflow to ensure the transition removal takes effect
+      window.offsetHeight;
+      
+      // Adjust other windows to fill space
+      const others = Array.from(windows).filter(w => w !== window);
+      others.forEach(other => {
+        const otherRect = other.getBoundingClientRect();
+        if (isOverlapping(rect, otherRect)) {
+          adjustWindowToFit(other as HTMLElement, window);
+        }
+      });
+    }
+
+    function adjustWindowToFit(windowToAdjust: HTMLElement, referenceWindow: HTMLElement) {
+      const refRect = referenceWindow.getBoundingClientRect();
+      const adjustRect = windowToAdjust.getBoundingClientRect();
+      
+      // Remove transition for instant adjustment
+      windowToAdjust.style.transition = 'none';
+
+      if (adjustRect.left < refRect.right && adjustRect.right > refRect.left) {
+        if (adjustRect.left < refRect.left) {
+          windowToAdjust.style.width = `${refRect.left - adjustRect.left - gaps}px`;
+        } else {
+          windowToAdjust.style.left = `${refRect.right + gaps}px`;
+          windowToAdjust.style.width = `${adjustRect.right - refRect.right - gaps}px`;
+        }
+      }
+
+      if (adjustRect.top < refRect.bottom && adjustRect.bottom > refRect.top) {
+        if (adjustRect.top < refRect.top) {
+          windowToAdjust.style.height = `${refRect.top - adjustRect.top - gaps}px`;
+        } else {
+          windowToAdjust.style.top = `${refRect.bottom + gaps}px`;
+          windowToAdjust.style.height = `${adjustRect.bottom - refRect.bottom - gaps}px`;
+        }
+      }
+    }
+
+    function isOverlapping(rect1: DOMRect, rect2: DOMRect) {
+      return !(rect1.right < rect2.left || 
+               rect1.left > rect2.right || 
+               rect1.bottom < rect2.top || 
+               rect1.top > rect2.bottom);
+    }
+
+    // Initial window layout
+    setTimeout(() => {
+      const windowArray = Array.from(windows);
+      if (windowArray.length >= 4) {
+        setActiveWindow(windowArray[0]);
+        
+        // Set up initial grid layout with consistent gaps
+        const gaps = 8; // Reduced gap size for better space utilization
+        const layout = [
+          { 
+            left: `${gaps}px`, 
+            top: `${gaps}px`, 
+            width: `calc(50% - ${gaps * 1.5}px)`, 
+            height: `calc(50% - ${gaps * 1.5}px)` 
+          },
+          { 
+            left: `calc(50% + ${gaps/2}px)`, 
+            top: `${gaps}px`, 
+            width: `calc(50% - ${gaps * 1.5}px)`, 
+            height: `calc(50% - ${gaps * 1.5}px)` 
+          },
+          { 
+            left: `${gaps}px`, 
+            top: `calc(50% + ${gaps/2}px)`, 
+            width: `calc(50% - ${gaps * 1.5}px)`, 
+            height: `calc(50% - ${gaps * 1.5}px)` 
+          },
+          { 
+            left: `calc(50% + ${gaps/2}px)`, 
+            top: `calc(50% + ${gaps/2}px)`, 
+            width: `calc(50% - ${gaps * 1.5}px)`, 
+            height: `calc(50% - ${gaps * 1.5}px)` 
+          }
+        ];
+
+        windowArray.forEach((window, i) => {
+          if (i < layout.length) {
+            Object.assign(window.style, layout[i]);
+          }
+        });
+      }
+    }, 100);
+  });
+</script>

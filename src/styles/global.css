@@ -1,0 +1,50 @@
+@font-face {
+  font-family: 'Symbols Nerd Font';
+  src: url('https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/NerdFontsSymbolsOnly/complete/Symbols-2048-em%20Nerd%20Font%20Complete.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  --surface: rgba(26, 27, 38, 0.8);
+  --border: #24283b;
+  --accent: #7aa2f7;
+  --text: #a9b1d6;
+  --glow: rgba(122, 162, 247, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: system-ui, sans-serif;
+  background: #1a1b26;
+  color: var(--text);
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+} 

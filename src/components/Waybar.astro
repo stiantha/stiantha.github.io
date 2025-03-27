@@ -1,0 +1,163 @@
+<div class="waybar">
+  <!-- Left section -->
+  <div class="waybar-left">
+    <div class="workspace active">1</div>
+    <div class="workspace">2</div>
+    <div class="workspace">3</div>
+    <div class="workspace">4</div>
+    <div class="workspace">5</div>
+    <div class="github">
+      <span class="icon">󰊤</span>
+      <span>GitHub</span>
+    </div>
+  </div>
+
+  <!-- Center section -->
+  <div class="waybar-center">
+    <span>HYPRFOLIO</span>
+  </div>
+
+  <!-- Right section -->
+  <div class="waybar-right">
+    <div class="module">
+      <span class="icon temp">󰔏</span>
+      <span>52°C</span>
+    </div>
+    <div class="module">
+      <span class="icon">󰍛</span>
+      <span>48%</span>
+    </div>
+    <div class="module">
+      <span class="icon">󰋊</span>
+      <span>16%</span>
+    </div>
+    <div class="module">
+      <span class="icon">󰖲</span>
+    </div>
+    <div class="module" id="clock">
+      <span class="icon">󰥔</span>
+      <span></span>
+    </div>
+    <div class="module">
+      <span class="icon">󰃭</span>
+      <span>02-22</span>
+    </div>
+    <div class="module">
+      <span class="icon">󰤨</span>
+    </div>
+    <div class="module">
+      <span class="icon">󰖩</span>
+    </div>
+    <div class="module">
+      <span class="icon">󰇚</span>
+    </div>
+    <div class="module">
+      <span class="icon battery">󱊣</span>
+      <span>38%</span>
+    </div>
+    <div class="module">
+      <span class="icon cpu">󰂄</span>
+      <span>60%</span>
+    </div>
+    <div class="module">
+      <span class="icon">󰁹</span>
+      <span>53%</span>
+    </div>
+    <div class="module">
+      <span class="icon power">󰐥</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .waybar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    background: #0f0f0f;
+    color: #a9b1d6;
+    font-family: monospace;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    z-index: 9999;
+    user-select: none;
+  }
+
+  .waybar-left,
+  .waybar-center,
+  .waybar-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .workspace {
+    padding: 1px 8px;
+    color: #414868;
+  }
+
+  .workspace.active {
+    background: #7aa2f7;
+    color: #1a1b26;
+    border-radius: 2px;
+  }
+
+  .github {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+  }
+
+  .github .icon {
+    color: #e0af68;
+  }
+
+  .waybar-center {
+    color: #7aa2f7;
+  }
+
+  .waybar-right {
+    gap: 8px;
+  }
+
+  .module {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .module span:not(.icon) {
+    opacity: 0.9;
+  }
+
+  .icon {
+    font-family: 'Symbols Nerd Font';
+  }
+
+  .icon.temp { color: #e0af68; }
+  .icon.battery { color: #e0af68; }
+  .icon.cpu { color: #9ece6a; }
+  .icon.power { color: #f7768e; }
+</style>
+
+<script>
+  function updateClock() {
+    const clockSpan = document.querySelector('#clock span:last-child');
+    if (clockSpan) {
+      const now = new Date();
+      clockSpan.textContent = now.toLocaleTimeString('en-US', { 
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+</script> 

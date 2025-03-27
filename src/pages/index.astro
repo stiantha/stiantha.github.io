@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Window from '../components/Window.astro';
 
 const projects = [
   {
@@ -20,115 +21,80 @@ const projects = [
 // Initial window positions with proper gaps
 const gaps = 12;
 const windows = [
-  { id: 'profile', left: gaps, top: gaps, width: `calc(50% - ${gaps * 1.5}px)`, height: `calc(50vh - ${gaps * 1.5}px)` },
-  { id: 'about', left: `calc(50% + ${gaps/2}px)`, top: gaps, width: `calc(50% - ${gaps * 1.5}px)`, height: `calc(50vh - ${gaps * 1.5}px)` },
-  { id: 'projects', left: gaps, top: `calc(50vh + ${gaps/2}px)`, width: `calc(50% - ${gaps * 1.5}px)`, height: `calc(50vh - ${gaps * 1.5}px)` },
-  { id: 'contact', left: `calc(50% + ${gaps/2}px)`, top: `calc(50vh + ${gaps/2}px)`, width: `calc(50% - ${gaps * 1.5}px)`, height: `calc(50vh - ${gaps * 1.5}px)` }
+  { 
+    id: 'profile', 
+    left: gaps, 
+    top: gaps, 
+    width: `calc(50% - ${gaps * 1.5}px)`, 
+    height: `calc(50% - ${gaps * 1.5}px)` 
+  },
+  { 
+    id: 'about', 
+    left: `calc(50% + ${gaps/2}px)`, 
+    top: gaps, 
+    width: `calc(50% - ${gaps * 1.5}px)`, 
+    height: `calc(50% - ${gaps * 1.5}px)` 
+  },
+  { 
+    id: 'projects', 
+    left: gaps, 
+    top: `calc(50% + ${gaps/2}px)`, 
+    width: `calc(50% - ${gaps * 1.5}px)`, 
+    height: `calc(50% - ${gaps * 1.5}px)` 
+  },
+  { 
+    id: 'contact', 
+    left: `calc(50% + ${gaps/2}px)`, 
+    top: `calc(50% + ${gaps/2}px)`, 
+    width: `calc(50% - ${gaps * 1.5}px)`, 
+    height: `calc(50% - ${gaps * 1.5}px)` 
+  }
 ];
 ---
 
-<Layout title="Your Name - Portfolio">
-  <div class="fixed inset-0 flex items-center justify-center text-[#414868] text-8xl font-bold opacity-10 select-none pointer-events-none">
-    HYPRFOLIO
-  </div>
-  
-  <!-- Profile Window -->
-  <div class="window" style={`left: ${windows[0].left}; top: ${windows[0].top}; width: ${windows[0].width}; height: ${windows[0].height};`}>
-    <div class="window-header">
-      <div class="window-controls">
-        <div class="window-control bg-[#f7768e]"></div>
-        <div class="window-control bg-[#e0af68]"></div>
-        <div class="window-control bg-[#9ece6a]"></div>
-      </div>
-      <div class="window-title">profile</div>
+<Layout title="HYPRFOLIO">
+  <Window title="profile" style={`left: ${windows[0].left}; top: ${windows[0].top}; width: ${windows[0].width}; height: ${windows[0].height};`}>
+    <div class="text-[#a9b1d6] font-mono text-sm leading-relaxed">
+      <div class="text-[#7aa2f7]">$ whoami</div>
+      <div class="mt-2">Your Name</div>
+      <div class="text-[#565f89]">Software Developer & Linux Enthusiast</div>
     </div>
-    <div class="window-content">
-      <h1 class="text-4xl font-bold mb-4">$ whoami</h1>
-      <p class="text-xl text-[#7aa2f7]">Your Name</p>
-      <p class="mt-4 text-[#9aa5ce]">Software Developer & Linux Enthusiast</p>
-    </div>
-  </div>
+  </Window>
 
-  <!-- About Window -->
-  <div class="window" style={`left: ${windows[1].left}; top: ${windows[1].top}; width: ${windows[1].width}; height: ${windows[1].height};`}>
-    <div class="window-header">
-      <div class="window-controls">
-        <div class="window-control bg-[#f7768e]"></div>
-        <div class="window-control bg-[#e0af68]"></div>
-        <div class="window-control bg-[#9ece6a]"></div>
-      </div>
-      <div class="window-title">about.txt</div>
+  <Window title="about.txt" style={`left: ${windows[1].left}; top: ${windows[1].top}; width: ${windows[1].width}; height: ${windows[1].height};`}>
+    <div class="text-[#a9b1d6] font-mono text-sm leading-relaxed">
+      <div class="text-[#7aa2f7]">$ cat about.txt</div>
+      <div class="mt-2 text-[#565f89] whitespace-pre-wrap">A passionate developer who loves creating elegant solutions to complex problems. Currently focused on web development and Linux system administration.</div>
     </div>
-    <div class="window-content">
-      <h2 class="text-2xl font-bold mb-4">$ cat about.txt</h2>
-      <p class="text-[#9aa5ce]">
-        A passionate developer who loves creating elegant solutions to complex problems.
-        Currently focused on web development and Linux system administration.
-      </p>
-    </div>
-  </div>
+  </Window>
 
-  <!-- Projects Window -->
-  <div class="window" style={`left: ${windows[2].left}; top: ${windows[2].top}; width: ${windows[2].width}; height: ${windows[2].height};`}>
-    <div class="window-header">
-      <div class="window-controls">
-        <div class="window-control bg-[#f7768e]"></div>
-        <div class="window-control bg-[#e0af68]"></div>
-        <div class="window-control bg-[#9ece6a]"></div>
+  <Window title="projects/" style={`left: ${windows[2].left}; top: ${windows[2].top}; width: ${windows[2].width}; height: ${windows[2].height};`}>
+    <div class="text-[#a9b1d6] font-mono text-sm leading-relaxed">
+      <div class="text-[#7aa2f7]">$ ls projects/</div>
+      
+      <div class="mt-2">
+        <div class="text-[#7aa2f7]">Project 1</div>
+        <div class="text-[#565f89]">A brief description of your first project</div>
+        <div class="text-[#414868]">TypeScriptReactNode.js</div>
+        <a href="#" class="text-[#7aa2f7] hover:underline">View on GitHub →</a>
       </div>
-      <div class="window-title">projects/</div>
-    </div>
-    <div class="window-content">
-      <h2 class="text-2xl font-bold mb-4">$ ls projects/</h2>
-      <div class="grid gap-4">
-        {projects.map(project => (
-          <div class="bg-[#1a1b26] rounded-lg p-4 border border-[#414868] hover:border-[#7aa2f7] transition-all duration-200">
-            <h3 class="text-xl font-bold mb-2">{project.title}</h3>
-            <p class="text-[#9aa5ce] mb-3">{project.description}</p>
-            <div class="flex flex-wrap gap-2 mb-3">
-              {project.technologies.map(tech => (
-                <span class="px-2 py-1 bg-[#414868] rounded-lg text-sm">{tech}</span>
-              ))}
-            </div>
-            <a href={project.link} class="inline-flex items-center gap-2 text-[#7aa2f7]">
-              <span>View on GitHub</span>
-              <span class="text-lg">→</span>
-            </a>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
 
-  <!-- Contact Window -->
-  <div class="window" style={`left: ${windows[3].left}; top: ${windows[3].top}; width: ${windows[3].width}; height: ${windows[3].height};`}>
-    <div class="window-header">
-      <div class="window-controls">
-        <div class="window-control bg-[#f7768e]"></div>
-        <div class="window-control bg-[#e0af68]"></div>
-        <div class="window-control bg-[#9ece6a]"></div>
-      </div>
-      <div class="window-title">contact</div>
-    </div>
-    <div class="window-content">
-      <div class="flex gap-6 justify-center">
-        <a href="https://github.com/yourusername" class="flex items-center gap-2">
-          <span>GitHub</span>
-          <span class="text-lg">→</span>
-        </a>
-        <a href="https://linkedin.com/in/yourusername" class="flex items-center gap-2">
-          <span>LinkedIn</span>
-          <span class="text-lg">→</span>
-        </a>
-        <a href="mailto:your.email@example.com" class="flex items-center gap-2">
-          <span>Email</span>
-          <span class="text-lg">→</span>
-        </a>
+      <div class="mt-4">
+        <div class="text-[#7aa2f7]">Project 2</div>
+        <div class="text-[#565f89]">A brief description of your second project</div>
+        <div class="text-[#414868]">PythonDjangoPostgreSQL</div>
+        <a href="#" class="text-[#7aa2f7] hover:underline">View on GitHub →</a>
       </div>
     </div>
-  </div>
+  </Window>
 
-  <div class="fixed bottom-4 left-4 text-sm text-[#414868]">
-    Press Alt + Arrow Keys to tile windows
-  </div>
+  <Window title="contact" style={`left: ${windows[3].left}; top: ${windows[3].top}; width: ${windows[3].width}; height: ${windows[3].height};`}>
+    <div class="text-[#a9b1d6] font-mono text-sm leading-relaxed">
+      <div class="flex gap-4">
+        <a href="#" class="text-[#7aa2f7] hover:underline">GitHub →</a>
+        <a href="#" class="text-[#7aa2f7] hover:underline">LinkedIn →</a>
+        <a href="#" class="text-[#7aa2f7] hover:underline">Email →</a>
+      </div>
+    </div>
+  </Window>
 </Layout> 

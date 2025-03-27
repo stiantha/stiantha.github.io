@@ -1,0 +1,65 @@
+.window {
+  background: rgba(26, 27, 38, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  position: fixed;
+  min-width: 300px;
+  min-height: 200px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.window.active-window {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px var(--glow);
+}
+
+.window.selected-window {
+  border-color: #bb9af7;
+  box-shadow: 0 0 30px rgba(187, 154, 247, 0.3);
+}
+
+.window-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  border-radius: 4px 4px 0 0;
+  user-select: none;
+  background: rgba(26, 27, 38, 0.95);
+  height: 32px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.window-control {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.window-control:hover {
+  transform: scale(1.2);
+}
+
+.window-title {
+  flex: 1;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--text);
+  opacity: 0.8;
+  padding-left: 0.5rem;
+}
+
+.window-content {
+  padding: 1rem;
+  height: calc(100% - 32px);
+  overflow-y: auto;
+  font-family: monospace;
+  line-height: 1.5;
+} 
