@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Linux-Inspired Portfolio
 
 A minimalistic portfolio website built with Astro, inspired by Linux and Hyprland aesthetics.
@@ -39,3 +40,6 @@ The built site will be in the `dist` directory.
 ## License
 
 MIT 
+=======
+# stiantha.github.io
+>>>>>>> af555bb6784093912a32e4d9fb605ddd05f2eebb
