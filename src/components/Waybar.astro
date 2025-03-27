@@ -1,80 +1,82 @@
-<div class="waybar">
+<div
+  class="waybar bg-[#1d1d1d] text-white flex justify-between items-center font-mono text-sm border-b border-[#333333]"
+>
   <!-- Left section -->
-  <div class="flex items-center gap-1">
-    <div class="workspace active">HYPRFOLIO</div>
-    <div class="workspace">PORTFOLIO</div>
+  <div class="flex items-center gap-4 w-[200px] text-white">
+    <div class="workspace active px-2">HYPRFOLIO</div>
+    <div class="workspace px-2">PORTFOLIO</div>
+  </div>
+
+  <!-- Middle section -->
+  <div
+    class="middle-section absolute left-1/2 -translate-x-1/2 flex items-stretch h-6"
+  >
+    <div
+      class="module bg-[#2c2c2c] flex items-center px-4 relative h-6"
+    >
+      <div class="text-[#7aa2f7] flex items-center gap-2">
+        SHIFT + ARROW Select
+      </div>
+    </div>
+    <div class="separator w-5 relative -mx-[10px] z-10 h-6"></div>
+    <div
+      class="module bg-[#252525] flex items-center px-4 relative h-6"
+    >
+      <div class="text-[#9ece6a] flex items-center gap-2">
+        ALT + ARROW Move
+      </div>
+    </div>
+    <div class="separator w-5 relative -mx-[10px] z-10 h-6"></div>
+    <div
+      class="module bg-[#2c2c2c] flex items-center px-4 relative h-6"
+    >
+      <div class="text-[#ff9e64] flex items-center gap-2">
+        CTRL + ARROW Resize
+      </div>
+    </div>
   </div>
 
   <!-- Right section -->
-  <div class="flex items-center gap-2">
-    <div class="flex items-center gap-1" id="clock">
-      <span class="opacity-90"></span>
+  <div class="flex items-center gap-4 w-[200px] justify-end">
+    <div class="time text-white flex items-center">
+      <span class="time-display"></span>
     </div>
-    |
-    <div class="flex items-center gap-1" id="date">
-      <span class="opacity-90"></span>
+    <div class="date text-white flex items-center">
+      <span class="date-display"></span>
     </div>
   </div>
+
+  <script>
+    function updateClock() {
+      const timeDisplay = document.querySelector(".time-display");
+      if (timeDisplay) {
+        const now = new Date();
+        timeDisplay.textContent = now.toLocaleTimeString("en-US", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+    }
+
+    function updateDate() {
+      const dateDisplay = document.querySelector(".date-display");
+      if (dateDisplay) {
+        const now = new Date();
+        dateDisplay.textContent = now.toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+        });
+      }
+    }
+
+    function updateAll() {
+      updateClock();
+      updateDate();
+    }
+
+    // Update immediately and then every second
+    updateAll();
+    setInterval(updateAll, 1000);
+  </script>
 </div>
-
-<style>
-  .waybar {
-    background: #1a1a1a;
-    color: #ffffff;
-    padding: 0 1rem;
-    height: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    border-bottom: 1px solid #333333;
-  }
-
-  .workspace {
-    padding: 0.2rem 0.8rem;
-    color: #666666;
-  }
-
-  .workspace.active {
-    color: #ffffff;
-  }
-
-  #clock, #date {
-    color: #ffffff;
-  }
-</style>
-
-<script>
-  function updateClock() {
-    const clockElement = document.querySelector('#clock span');
-    if (clockElement) {
-      const now = new Date();
-      clockElement.textContent = now.toLocaleTimeString('en-US', { 
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-  }
-
-  function updateDate() {
-    const dateElement = document.querySelector('#date span');
-    if (dateElement) {
-      const now = new Date();
-      dateElement.textContent = now.toLocaleDateString('en-US', {
-        month: '2-digit',
-        day: '2-digit'
-      });
-    }
-  }
-
-  function updateAll() {
-    updateClock();
-    updateDate();
-  }
-
-  // Update immediately and then every second
-  updateAll();
-  setInterval(updateAll, 1000);
-</script> 

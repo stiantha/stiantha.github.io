@@ -28,6 +28,10 @@
     @apply absolute bg-[#1a1b26] border border-[#414868] rounded shadow-lg overflow-hidden;
   }
 
+  .window.active-window {
+    @apply absolute border-[#7aa2f7];
+  }
+
   .window-header {
     @apply flex items-center justify-between px-4 py-2 bg-[#24283b] border-b border-[#414868];
   }
@@ -44,13 +48,6 @@
     @apply w-3 h-3 rounded-full flex items-center justify-center text-[10px] text-[#1a1b26];
   }
 
-  .window-control.minimize {
-    @apply bg-[#febc2e];
-  }
-
-  .window-control.maximize {
-    @apply bg-[#28c840];
-  }
 
   .window-control.close {
     @apply text-3xl text-[#7aa2f7];
@@ -81,7 +78,7 @@
   }
 
   .workspace.active {
-    @apply bg-[#414868] text-[#7aa2f7];
+    @apply bg-[#4244cc] text-[#ffffff];
   }
 
   .system-info {
