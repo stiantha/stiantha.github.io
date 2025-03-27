@@ -1,0 +1,300 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const windows = document.querySelectorAll('.window');
+        let activeWindow = null;
+        const gaps = 12; // Gap between windows
+
+        // Window focus management
+        windows.forEach(window => {
+          window.addEventListener('mousedown', () => {
+            windows.forEach(w => w.style.zIndex = '1');
+            window.style.zIndex = '10';
+            activeWindow = window;
+          });
+        });
+
+        // Tiling functionality
+        document.addEventListener('keydown', (e) => {
+          if (!activeWindow) return;
+
+          const workspace = document.querySelector('.min-h-screen');
+          const workspaceRect = workspace.getBoundingClientRect();
+          
+          // Move windows with Alt + Arrow keys
+          if (e.altKey) {
+            e.preventDefault();
+            switch (e.key) {
+              case 'ArrowLeft':
+                tileWindow(activeWindow, 'left');
+                break;
+              case 'ArrowRight':
+                tileWindow(activeWindow, 'right');
+                break;
+              case 'ArrowUp':
+                tileWindow(activeWindow, 'top');
+                break;
+              case 'ArrowDown':
+                tileWindow(activeWindow, 'bottom');
+                break;
+            }
+          }
+          
+          // Resize windows with Ctrl + Arrow keys
+          if (e.ctrlKey) {
+            e.preventDefault();
+            switch (e.key) {
+              case 'ArrowLeft':
+                resizeWindow(activeWindow, 'shrink-width');
+                break;
+              case 'ArrowRight':
+                resizeWindow(activeWindow, 'grow-width');
+                break;
+              case 'ArrowUp':
+                resizeWindow(activeWindow, 'shrink-height');
+                break;
+              case 'ArrowDown':
+                resizeWindow(activeWindow, 'grow-height');
+                break;
+            }
+          }
+        });
+
+        function tileWindow(window, position) {
+          const workspace = document.querySelector('.min-h-screen');
+          const rect = workspace.getBoundingClientRect();
+          
+          window.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+          
+          switch (position) {
+            case 'left':
+              window.style.left = `${gaps}px`;
+              window.style.top = `${gaps}px`;
+              window.style.width = `calc(50% - ${gaps * 1.5}px)`;
+              window.style.height = `calc(100vh - ${gaps * 2}px)`;
+              break;
+            case 'right':
+              window.style.left = `calc(50% + ${gaps/2}px)`;
+              window.style.top = `${gaps}px`;
+              window.style.width = `calc(50% - ${gaps * 1.5}px)`;
+              window.style.height = `calc(100vh - ${gaps * 2}px)`;
+              break;
+            case 'top':
+              window.style.left = `${gaps}px`;
+              window.style.top = `${gaps}px`;
+              window.style.width = `calc(100% - ${gaps * 2}px)`;
+              window.style.height = `calc(50vh - ${gaps * 1.5}px)`;
+              break;
+            case 'bottom':
+              window.style.left = `${gaps}px`;
+              window.style.top = `calc(50vh + ${gaps/2}px)`;
+              window.style.width = `calc(100% - ${gaps * 2}px)`;
+              window.style.height = `calc(50vh - ${gaps * 1.5}px)`;
+              break;
+          }
+          
+          window.style.transform = 'none';
+          window.style.position = 'fixed';
+        }
+
+        function resizeWindow(window, action) {
+          const currentWidth = window.offsetWidth;
+          const currentHeight = window.offsetHeight;
+          const step = 50; // Resize step in pixels
+
+          switch (action) {
+            case 'grow-width':
+              window.style.width = `${currentWidth + step}px`;
+              break;
+            case 'shrink-width':
+              window.style.width = `${Math.max(300, currentWidth - step)}px`;
+              break;
+            case 'grow-height':
+              window.style.height = `${currentHeight + step}px`;
+              break;
+            case 'shrink-height':
+              window.style.height = `${Math.max(200, currentHeight - step)}px`;
+              break;
+          }
+        }
+      });
+    </script>
+  </head>
+  <body class="bg-[#1a1b26] text-[#a9b1d6] font-mono">
+    <div class="fixed top-0 left-0 w-full h-1 bg-[#7aa2f7] opacity-50"></div>
+    <div class="workspace-indicator fixed top-4 right-4 flex gap-2">
+      <div class="w-2 h-2 rounded-full bg-[#7aa2f7]"></div>
+      <div class="w-2 h-2 rounded-full bg-[#414868]"></div>
+      <div class="w-2 h-2 rounded-full bg-[#414868]"></div>
+    </div>
+    <div class="min-h-screen">
+      <slot />
+    </div>
+    <div class="fixed bottom-4 left-4 text-sm text-[#414868] flex flex-col gap-1">
+      <div>Alt + Arrow Keys: Tile windows</div>
+      <div>Ctrl + Arrow Keys: Resize active window</div>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --accent: #7aa2f7;
+    --text: #a9b1d6;
+    --background: #1a1b26;
+    --surface: #24283b;
+    --border: #414868;
+    --glow: rgba(122, 162, 247, 0.2);
+  }
+
+  html {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--background);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .window {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    position: fixed;
+    min-width: 300px;
+    min-height: 200px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 20px var(--glow);
+    backdrop-filter: blur(10px);
+  }
+
+  .window-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0.75rem 0.75rem 0 0;
+    user-select: none;
+  }
+
+  .window-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .window-control {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+
+  .window-control:hover {
+    transform: scale(1.2);
+  }
+
+  .window-title {
+    flex: 1;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text);
+    opacity: 0.8;
+  }
+
+  .window-content {
+    padding: 1.5rem;
+    height: calc(100% - 3.5rem);
+    overflow-y: auto;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    position: relative;
+  }
+
+  a:hover {
+    background: rgba(122, 162, 247, 0.1);
+    text-decoration: none;
+  }
+
+  a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+
+  a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--accent);
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+    text-shadow: 0 0 10px var(--glow);
+  }
+
+  /* Hyprland-inspired scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--surface);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+
+  /* Animation for window focus */
+  @keyframes focus {
+    0% { box-shadow: 0 0 20px var(--glow); }
+    50% { box-shadow: 0 0 30px var(--glow); }
+    100% { box-shadow: 0 0 20px var(--glow); }
+  }
+
+  .window:focus-within {
+    animation: focus 2s infinite;
+  }
+</style> 
