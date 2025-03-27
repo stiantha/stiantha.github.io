@@ -1,6 +1,10 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://your-username.github.io',
-  base: '/portfolio'
+  site: 'https://stiantha.github.io',
+  base: '/',
+  output: 'static',
+  build: {
+    assets: 'assets'
+  }
 }); 
