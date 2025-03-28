@@ -226,167 +226,184 @@
     }
 
     function resizeWindowByPercent(targetWindow: HTMLDivElement, action: 'grow-width' | 'shrink-width' | 'grow-height' | 'shrink-height') {
-    console.log(`--- Resize Start ---`);
-    console.log(`Action: ${action}, Target Window ID: ${targetWindow.id || 'No ID'}`);
+        const workspace = document.querySelector<HTMLElement>('main');
+        if (!workspace) return;
+        
+        const workspaceRect = workspace.getBoundingClientRect();
+        const percent = 0.05;
+        const minSize = 200;
+        const tolerance = 25;
+        
+        // Calculate resize amount - 5% of total workspace size
+        const resizeAmount = action.includes('width')
+            ? workspaceRect.width * percent
+            : workspaceRect.height * percent;
 
-    const workspace = document.querySelector<HTMLElement>('main');
-    if (!workspace) { console.error("Workspace element not found!"); return; }
-    const workspaceRect = workspace.getBoundingClientRect();
-    const workspaceOffsetTop = workspaceRect.top;
-    const workspaceOffsetLeft = workspaceRect.left;
-    // console.log("Workspace Rect:", workspaceRect);
-
-    // --- Configuration ---
-    const percent = 0.05;
-    const minSize = 50;
-    const currentGaps = 8;
-    // --- End Configuration ---
-
-    const allWindows = Array.from(document.querySelectorAll<HTMLDivElement>('.window'));
-    if (allWindows.length !== 4) { console.warn("Resize logic assumes exactly 4 windows."); return; }
-
-    const initialViewportRects = new Map<HTMLDivElement, DOMRect>();
-    allWindows.forEach((w, i) => {
-        if (!w.id) w.id = `win${i}`;
-        initialViewportRects.set(w, w.getBoundingClientRect());
-    });
-    // console.log("Initial Viewport Rects:", initialViewportRects);
-
-    const targetViewportRect = initialViewportRects.get(targetWindow);
-    if (!targetViewportRect) { console.error("Target window not found in initialViewportRects map."); return; }
-    // console.log(`Target Viewport Rect (${targetWindow.id}):`, targetViewportRect);
-
-    const targetIndex = allWindows.findIndex(w => w === targetWindow);
-    if (targetIndex === -1) { console.error("Target window not found in allWindows array."); return; }
-    console.log(`Target Index: ${targetIndex}`);
-
-    let neighborIndex = -1;
-    const isHorizontal = action.includes('width');
-    const isShrinking = action.includes('shrink');
-
-     if (action === 'grow-width') neighborIndex = (targetIndex === 0 || targetIndex === 2) ? targetIndex + 1 : -1;
-     else if (action === 'shrink-width') neighborIndex = (targetIndex === 1 || targetIndex === 3) ? targetIndex - 1 : -1;
-     else if (action === 'grow-height') neighborIndex = (targetIndex === 0 || targetIndex === 1) ? targetIndex + 2 : -1;
-     else if (action === 'shrink-height') neighborIndex = (targetIndex === 2 || targetIndex === 3) ? targetIndex - 2 : -1;
-
-    console.log(`Calculated Neighbor Index: ${neighborIndex}`);
-
-    if (neighborIndex < 0 || neighborIndex >= 4) {
-        console.log("No valid neighbor for this action/position.");
-        console.log(`--- Resize End (No Neighbor) ---`);
-        return;
-    }
-
-    const neighborWindow = allWindows[neighborIndex];
-    const neighborViewportRect = initialViewportRects.get(neighborWindow);
-    if (!neighborViewportRect) { console.error(`Neighbor window error.`); return; }
-    // console.log(`Neighbor (${neighborWindow.id}) Viewport Rect:`, neighborViewportRect);
-
-    const resizeAmountPx = isHorizontal ? workspaceRect.width * percent : workspaceRect.height * percent;
-    // console.log(`Base Resize Amount (px): ${resizeAmountPx}`);
-
-    let actualResizeAmountPx = 0;
-    const shrinkingWindow = isShrinking ? targetWindow : neighborWindow;
-    const growingWindow = isShrinking ? neighborWindow : targetWindow;
-    const shrinkingViewportRect = initialViewportRects.get(shrinkingWindow)!;
-    const growingViewportRect = initialViewportRects.get(growingWindow)!; // Get rect for growing window too
-
-    console.log(`Shrinking Window: ${shrinkingWindow.id}, Growing Window: ${growingWindow.id}`);
-
-    // Check constraints
-    if (isHorizontal) {
-        // console.log(`Checking Shrink Width: ${shrinkingWindow.id} width=${shrinkingViewportRect.width}`);
-        if (shrinkingViewportRect.width >= minSize + resizeAmountPx) actualResizeAmountPx = resizeAmountPx;
-        else actualResizeAmountPx = Math.max(0, shrinkingViewportRect.width - minSize);
-    } else {
-        // console.log(`Checking Shrink Height: ${shrinkingWindow.id} height=${shrinkingViewportRect.height}`);
-        if (shrinkingViewportRect.height >= minSize + resizeAmountPx) actualResizeAmountPx = resizeAmountPx;
-        else actualResizeAmountPx = Math.max(0, shrinkingViewportRect.height - minSize);
-    }
-    console.log(`Actual Resize Amount (px): ${actualResizeAmountPx}`);
-
-    if (actualResizeAmountPx < 1 && !(action === 'shrink-height' && targetWindow.id === 'win2')) { // Allow test case even if amount is 0
-        console.log("Resize blocked.");
-        console.log(`--- Resize End (Blocked) ---`);
-        return;
-    }
-
-    // --- Apply Changes ---
-    console.log("Applying Changes...");
-
-    // Get initial container-relative positions and dimensions for calculation reference
-    let targetStyleLeft = targetViewportRect.left - workspaceOffsetLeft;
-    let targetStyleTop = targetViewportRect.top - workspaceOffsetTop;
-    let targetStyleWidth = targetViewportRect.width;
-    let targetStyleHeight = targetViewportRect.height;
-
-    let neighborStyleLeft = neighborViewportRect.left - workspaceOffsetLeft;
-    let neighborStyleTop = neighborViewportRect.top - workspaceOffsetTop;
-    let neighborStyleWidth = neighborViewportRect.width;
-    let neighborStyleHeight = neighborViewportRect.height;
-
-    // Calculate NEW dimensions AND positions based on action
-    if (isHorizontal) {
-        if (action === 'grow-width') { // Target(Left) grows, Neighbor(Right) shrinks
-            targetStyleWidth += actualResizeAmountPx;
-            neighborStyleWidth -= actualResizeAmountPx;
-            neighborStyleLeft = targetStyleLeft + targetStyleWidth + currentGaps; // Neighbor moves right
-        } else if (action === 'shrink-width') { // Target(Right) shrinks, Neighbor(Left) grows
-            targetStyleWidth -= actualResizeAmountPx;
-            neighborStyleWidth += actualResizeAmountPx;
-            targetStyleLeft = neighborStyleLeft + neighborStyleWidth + currentGaps; // Target moves left
+        // Get all windows and their current positions
+        const allWindows = Array.from(document.querySelectorAll<HTMLDivElement>('.window'));
+        
+        // Define window data type for TypeScript
+        interface WindowData {
+            window: HTMLDivElement;
+            rect: DOMRect;
+            left: number;
+            right: number;
+            top: number;
+            bottom: number;
+            width: number;
+            height: number;
         }
-    } else { // Vertical
-        if (action === 'grow-height') { // Target(Top) grows, Neighbor(Bottom) shrinks
-            targetStyleHeight += actualResizeAmountPx;
-            neighborStyleHeight -= actualResizeAmountPx;
-            neighborStyleTop = targetStyleTop + targetStyleHeight + currentGaps; // Neighbor moves down
-
-        } else if (action === 'shrink-height') { // Target(Bottom) shrinks, Neighbor(Top) grows
-            console.log("!!! EXECUTING shrink-height LOGIC !!!");
-
-            // HARDCODED TEST for target=win2, neighbor=win0
-            if (targetWindow.id === 'win2' && neighborWindow.id === 'win0') {
-                 console.log("!!! APPLYING FORCED TEST for win2 shrink-height !!!");
-                const shrinkAmount = 30; // Fixed amount for testing
-                // Ensure calculations use initial values before applying test changes
-                let initialTargetHeight = targetViewportRect.height;
-                let initialNeighborHeight = neighborViewportRect.height;
-                let initialNeighborStyleTop = neighborViewportRect.top - workspaceOffsetTop;
-
-                targetStyleHeight = initialTargetHeight - shrinkAmount; // win2 shorter
-                neighborStyleHeight = initialNeighborHeight + shrinkAmount; // win0 taller
-                // Target(Bottom: win2) needs new top = Neighbor's(win0) initial top + Neighbor's NEW height + gap.
-                targetStyleTop = initialNeighborStyleTop + neighborStyleHeight + currentGaps;
-
-                console.log(`!!! TEST VALUES: win2.height=${targetStyleHeight}, win0.height=${neighborStyleHeight}, win2.top=${targetStyleTop} !!!`);
-            } else {
-                 // Original calculation (for other windows like win3 shrinking up)
-                 console.log("!!! APPLYING Original shrink-height CALCULATION !!!");
-                 targetStyleHeight -= actualResizeAmountPx; // Target height decreases
-                 neighborStyleHeight += actualResizeAmountPx; // Neighbor height increases
-                 // Target's new top = Neighbor's initial top + Neighbor's NEW height + gap.
-                 targetStyleTop = neighborStyleTop + neighborStyleHeight + currentGaps;
+        
+        // First, convert all window positions to be relative to the workspace
+        // This is critical for proper tiling calculations
+        const windowsData: WindowData[] = allWindows.map(w => {
+            const rect = w.getBoundingClientRect();
+            return {
+                window: w,
+                rect,
+                left: rect.left - workspaceRect.left,
+                right: rect.right - workspaceRect.left,
+                top: rect.top - workspaceRect.top,
+                bottom: rect.bottom - workspaceRect.top,
+                width: rect.width,
+                height: rect.height
+            };
+        });
+        
+        const targetData = windowsData.find(data => data.window === targetWindow)!;
+        
+        // For horizontal resizing
+        if (action.includes('width')) {
+            // Find windows that are on the same horizontal level (same row)
+            const sameRowWindows = windowsData.filter(data => 
+                data.window !== targetWindow && 
+                Math.min(data.bottom, targetData.bottom) > Math.max(data.top, targetData.top)
+            );
+            
+            // Find directly adjacent window to resize with 
+            let adjacentWindow: WindowData | null = null;
+            
+            if (action === 'grow-width') {
+                // When growing, find window to the right
+                const rightWindows = sameRowWindows
+                    .filter(data => Math.abs(data.left - targetData.right) <= tolerance);
+                
+                adjacentWindow = rightWindows.length > 0 
+                    ? rightWindows.sort((a, b) => a.left - b.left)[0] 
+                    : null;
+                
+                if (adjacentWindow && adjacentWindow.width > minSize + resizeAmount) {
+                    // Grow target, shrink adjacent
+                    targetWindow.style.width = `${targetData.width + resizeAmount}px`;
+                    adjacentWindow.window.style.width = `${adjacentWindow.width - resizeAmount}px`;
+                    adjacentWindow.window.style.left = `${adjacentWindow.left + resizeAmount}px`;
+                }
+            } else { // shrink-width
+                // When shrinking, find window to the right
+                const rightWindows = sameRowWindows
+                    .filter(data => Math.abs(data.left - targetData.right) <= tolerance);
+                
+                adjacentWindow = rightWindows.length > 0 
+                    ? rightWindows.sort((a, b) => a.left - b.left)[0] 
+                    : null;
+                
+                if (adjacentWindow && targetData.width > minSize + resizeAmount) {
+                    // Shrink target, grow adjacent
+                    targetWindow.style.width = `${targetData.width - resizeAmount}px`;
+                    adjacentWindow.window.style.width = `${adjacentWindow.width + resizeAmount}px`;
+                    adjacentWindow.window.style.left = `${adjacentWindow.left - resizeAmount}px`;
+                }
+            }
+            
+            // If no window to right, check for window to left
+            if (!adjacentWindow) {
+                const leftWindows = sameRowWindows
+                    .filter(data => Math.abs(data.right - targetData.left) <= tolerance);
+                
+                const leftAdjacent = leftWindows.length > 0
+                    ? leftWindows.sort((a, b) => b.right - a.right)[0]
+                    : null;
+                
+                if (leftAdjacent) {
+                    if (action === 'grow-width' && leftAdjacent.width > minSize + resizeAmount) {
+                        // Grow target by shrinking left window
+                        targetWindow.style.width = `${targetData.width + resizeAmount}px`;
+                        targetWindow.style.left = `${targetData.left - resizeAmount}px`;
+                        leftAdjacent.window.style.width = `${leftAdjacent.width - resizeAmount}px`;
+                    } else if (action === 'shrink-width') {
+                        // Shrink target, grow left window
+                        targetWindow.style.width = `${targetData.width - resizeAmount}px`;
+                        targetWindow.style.left = `${targetData.left + resizeAmount}px`;
+                        leftAdjacent.window.style.width = `${leftAdjacent.width + resizeAmount}px`;
+                    }
+                }
+            }
+        } else {
+            // Vertical resizing - find windows in same column
+            const sameColWindows = windowsData.filter(data => 
+                data.window !== targetWindow && 
+                Math.min(data.right, targetData.right) > Math.max(data.left, targetData.left)
+            );
+            
+            // Find directly adjacent window to resize with
+            let adjacentWindow: WindowData | null = null;
+            
+            if (action === 'grow-height') {
+                // When growing, find window below
+                const belowWindows = sameColWindows
+                    .filter(data => Math.abs(data.top - targetData.bottom) <= tolerance);
+                
+                adjacentWindow = belowWindows.length > 0 
+                    ? belowWindows.sort((a, b) => a.top - b.top)[0] 
+                    : null;
+                
+                if (adjacentWindow && adjacentWindow.height > minSize + resizeAmount) {
+                    // Grow target, shrink adjacent
+                    targetWindow.style.height = `${targetData.height + resizeAmount}px`;
+                    adjacentWindow.window.style.height = `${adjacentWindow.height - resizeAmount}px`;
+                    adjacentWindow.window.style.top = `${adjacentWindow.top + resizeAmount}px`;
+                }
+            } else { // shrink-height
+                // When shrinking, find window below
+                const belowWindows = sameColWindows
+                    .filter(data => Math.abs(data.top - targetData.bottom) <= tolerance);
+                
+                adjacentWindow = belowWindows.length > 0 
+                    ? belowWindows.sort((a, b) => a.top - b.top)[0] 
+                    : null;
+                
+                if (adjacentWindow && targetData.height > minSize + resizeAmount) {
+                    // Shrink target, grow adjacent
+                    targetWindow.style.height = `${targetData.height - resizeAmount}px`;
+                    adjacentWindow.window.style.height = `${adjacentWindow.height + resizeAmount}px`;
+                    adjacentWindow.window.style.top = `${adjacentWindow.top - resizeAmount}px`;
+                }
+            }
+            
+            // If no window below, check for window above
+            if (!adjacentWindow) {
+                const aboveWindows = sameColWindows
+                    .filter(data => Math.abs(data.bottom - targetData.top) <= tolerance);
+                
+                const aboveAdjacent = aboveWindows.length > 0
+                    ? aboveWindows.sort((a, b) => b.bottom - a.bottom)[0]
+                    : null;
+                
+                if (aboveAdjacent) {
+                    if (action === 'grow-height' && aboveAdjacent.height > minSize + resizeAmount) {
+                        // Grow target by shrinking window above
+                        targetWindow.style.height = `${targetData.height + resizeAmount}px`;
+                        targetWindow.style.top = `${targetData.top - resizeAmount}px`;
+                        aboveAdjacent.window.style.height = `${aboveAdjacent.height - resizeAmount}px`;
+                    } else if (action === 'shrink-height') {
+                        // Shrink target, grow window above
+                        targetWindow.style.height = `${targetData.height - resizeAmount}px`;
+                        targetWindow.style.top = `${targetData.top + resizeAmount}px`;
+                        aboveAdjacent.window.style.height = `${aboveAdjacent.height + resizeAmount}px`;
+                    }
+                }
             }
         }
     }
-
-    // --- Log intended style changes ---
-    console.log(`Setting ${targetWindow.id}: left=${targetStyleLeft}px, top=${targetStyleTop}px, width=${targetStyleWidth}px, height=${targetStyleHeight}px`);
-    console.log(`Setting ${neighborWindow.id}: left=${neighborStyleLeft}px, top=${neighborStyleTop}px, width=${neighborStyleWidth}px, height=${neighborStyleHeight}px`);
-
-    // --- Apply ALL Styles to BOTH windows ---
-    targetWindow.style.left = `${targetStyleLeft}px`;
-    targetWindow.style.top = `${targetStyleTop}px`;
-    targetWindow.style.width = `${targetStyleWidth}px`;
-    targetWindow.style.height = `${targetStyleHeight}px`;
-
-    neighborWindow.style.left = `${neighborStyleLeft}px`;
-    neighborWindow.style.top = `${neighborStyleTop}px`;
-    neighborWindow.style.width = `${neighborStyleWidth}px`;
-    neighborWindow.style.height = `${neighborStyleHeight}px`;
-
-    console.log(`--- Resize End (Applied) ---`);
-}
   });
 </script>
