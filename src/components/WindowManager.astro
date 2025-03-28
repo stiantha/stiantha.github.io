@@ -161,80 +161,124 @@
       const rect = window.getBoundingClientRect();
       const percent = 0.05; // 5% change
 
-      // Remove transition for instant resize
-      window.style.transition = 'none';
+      // Find all windows that will be affected by this resize
+      const others = Array.from(windows).filter(w => w !== window) as HTMLElement[];
       
-      switch (action) {
-        case 'grow-width': {
-          const increase = workspaceRect.width * percent;
-          const newWidth = Math.min(rect.width + increase, workspaceRect.width - rect.left - gaps);
-          window.style.width = `${newWidth}px`;
-          break;
+      // Calculate the resize amount
+      const resizeAmount = action.includes('width') 
+        ? workspaceRect.width * percent 
+        : workspaceRect.height * percent;
+
+      // Apply resize to all affected windows
+      if (action.includes('width')) {
+        // Only affect windows in the same row
+        const sameRowWindows = others.filter(w => {
+          const r = w.getBoundingClientRect();
+          const sameRow = Math.abs(r.top - rect.top) < gaps && Math.abs(r.height - rect.height) < gaps;
+          return sameRow;
+        });
+
+        if (action === 'grow-width') {
+          const rightWindows = sameRowWindows.filter(w => {
+            const r = w.getBoundingClientRect();
+            return Math.abs(r.left - rect.right) <= gaps;
+          });
+          
+          if (rightWindows.length > 0) {
+            // Grow to the right, pushing other windows
+            window.style.width = `${rect.width + resizeAmount}px`;
+            rightWindows.forEach(w => {
+              const r = w.getBoundingClientRect();
+              w.style.left = `${r.left + resizeAmount}px`;
+              w.style.width = `${r.width - resizeAmount}px`;
+            });
+          }
+        } else {
+          const rightWindows = sameRowWindows.filter(w => {
+            const r = w.getBoundingClientRect();
+            return Math.abs(r.left - rect.right) <= gaps;
+          });
+          
+          if (rightWindows.length > 0 && rect.width > 300) { // Minimum width
+            const shrinkAmount = Math.min(resizeAmount, rect.width - 300);
+            // Shrink from right, pulling other windows
+            window.style.width = `${rect.width - shrinkAmount}px`;
+            rightWindows.forEach(w => {
+              const r = w.getBoundingClientRect();
+              w.style.left = `${r.left - shrinkAmount}px`;
+              w.style.width = `${r.width + shrinkAmount}px`;
+            });
+          }
         }
-        case 'shrink-width': {
-          const decrease = workspaceRect.width * percent;
-          const newWidth = Math.max(300, rect.width - decrease);
-          window.style.width = `${newWidth}px`;
-          break;
-        }
-        case 'grow-height': {
-          const increase = workspaceRect.height * percent;
-          const newHeight = Math.min(rect.height + increase, workspaceRect.height - rect.top - gaps);
-          window.style.height = `${newHeight}px`;
-          break;
-        }
-        case 'shrink-height': {
-          const decrease = workspaceRect.height * percent;
-          const newHeight = Math.max(200, rect.height - decrease);
-          window.style.height = `${newHeight}px`;
-          break;
+      } else {
+        // Only affect windows in the same column
+        const sameColumnWindows = others.filter(w => {
+          const r = w.getBoundingClientRect();
+          const sameColumn = Math.abs(r.left - rect.left) < gaps && Math.abs(r.width - rect.width) < gaps;
+          return sameColumn;
+        });
+
+        if (action === 'grow-height') {
+          const bottomWindows = sameColumnWindows.filter(w => {
+            const r = w.getBoundingClientRect();
+            return Math.abs(r.top - rect.bottom) <= gaps;
+          });
+          
+          if (bottomWindows.length > 0) {
+            // Grow downward, pushing other windows
+            window.style.height = `${rect.height + resizeAmount}px`;
+            bottomWindows.forEach(w => {
+              const r = w.getBoundingClientRect();
+              w.style.top = `${r.top + resizeAmount}px`;
+              w.style.height = `${r.height - resizeAmount}px`;
+            });
+          }
+        } else {
+          const bottomWindows = sameColumnWindows.filter(w => {
+            const r = w.getBoundingClientRect();
+            return Math.abs(r.top - rect.bottom) <= gaps;
+          });
+          
+          if (bottomWindows.length > 0 && rect.height > 200) { // Minimum height
+            const shrinkAmount = Math.min(resizeAmount, rect.height - 200);
+            // Shrink from bottom, pulling other windows
+            window.style.height = `${rect.height - shrinkAmount}px`;
+            bottomWindows.forEach(w => {
+              const r = w.getBoundingClientRect();
+              w.style.top = `${r.top - shrinkAmount}px`;
+              w.style.height = `${r.height + shrinkAmount}px`;
+            });
+          }
         }
       }
-
-      // Force reflow to ensure the transition removal takes effect
-      window.offsetHeight;
-      
-      // Adjust other windows to fill space
-      const others = Array.from(windows).filter(w => w !== window);
-      others.forEach(other => {
-        const otherRect = other.getBoundingClientRect();
-        if (isOverlapping(rect, otherRect)) {
-          adjustWindowToFit(other as HTMLElement, window);
-        }
-      });
     }
 
-    function adjustWindowToFit(windowToAdjust: HTMLElement, referenceWindow: HTMLElement) {
-      const refRect = referenceWindow.getBoundingClientRect();
-      const adjustRect = windowToAdjust.getBoundingClientRect();
-      
-      // Remove transition for instant adjustment
-      windowToAdjust.style.transition = 'none';
+    function isInResizePath(rect1: DOMRect, rect2: DOMRect, action: string) {
+      const tolerance = gaps;
 
-      if (adjustRect.left < refRect.right && adjustRect.right > refRect.left) {
-        if (adjustRect.left < refRect.left) {
-          windowToAdjust.style.width = `${refRect.left - adjustRect.left - gaps}px`;
+      if (action.includes('width')) {
+        // Check if windows are vertically aligned
+        const verticalOverlap = !(rect1.bottom < rect2.top - tolerance || rect1.top > rect2.bottom + tolerance);
+        
+        if (action === 'grow-width') {
+          // Check if window2 is to the right of window1
+          return verticalOverlap && Math.abs(rect2.left - rect1.right) <= tolerance;
         } else {
-          windowToAdjust.style.left = `${refRect.right + gaps}px`;
-          windowToAdjust.style.width = `${adjustRect.right - refRect.right - gaps}px`;
+          // Check if window2 is to the right of window1
+          return verticalOverlap && Math.abs(rect2.left - rect1.right) <= tolerance;
+        }
+      } else {
+        // Check if windows are horizontally aligned
+        const horizontalOverlap = !(rect1.right < rect2.left - tolerance || rect1.left > rect2.right + tolerance);
+        
+        if (action === 'grow-height') {
+          // Check if window2 is below window1
+          return horizontalOverlap && Math.abs(rect2.top - rect1.bottom) <= tolerance;
+        } else {
+          // Check if window2 is below window1
+          return horizontalOverlap && Math.abs(rect2.top - rect1.bottom) <= tolerance;
         }
       }
-
-      if (adjustRect.top < refRect.bottom && adjustRect.bottom > refRect.top) {
-        if (adjustRect.top < refRect.top) {
-          windowToAdjust.style.height = `${refRect.top - adjustRect.top - gaps}px`;
-        } else {
-          windowToAdjust.style.top = `${refRect.bottom + gaps}px`;
-          windowToAdjust.style.height = `${adjustRect.bottom - refRect.bottom - gaps}px`;
-        }
-      }
-    }
-
-    function isOverlapping(rect1: DOMRect, rect2: DOMRect) {
-      return !(rect1.right < rect2.left || 
-               rect1.left > rect2.right || 
-               rect1.bottom < rect2.top || 
-               rect1.top > rect2.bottom);
     }
 
     // Initial window layout
