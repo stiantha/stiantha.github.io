@@ -40,28 +40,73 @@
       // Select windows with Shift + Arrow keys
       if (e.shiftKey) {
         e.preventDefault();
-        const windowArray = Array.from(windows);
-        const currentIndex = windowArray.indexOf(selectedWindow || activeWindow!);
-        let newIndex = currentIndex;
+        const currentWindow = selectedWindow || activeWindow;
+        if (!currentWindow) return;
 
-        switch (e.key) {
-          case 'ArrowLeft':
-            newIndex = Math.max(0, currentIndex - 1);
-            break;
-          case 'ArrowRight':
-            newIndex = Math.min(windowArray.length - 1, currentIndex + 1);
-            break;
-          case 'ArrowUp':
-            newIndex = Math.max(0, currentIndex - 2);
-            break;
-          case 'ArrowDown':
-            newIndex = Math.min(windowArray.length - 1, currentIndex + 2);
-            break;
-        }
+        const currentRect = currentWindow.getBoundingClientRect();
+        const otherWindows = Array.from(windows).filter(w => w !== currentWindow);
+        
+        let nextWindow: HTMLElement | null = null;
+        let minDistance = Infinity;
 
-        if (newIndex !== currentIndex) {
-          setSelectedWindow(windowArray[newIndex]);
-          setActiveWindow(windowArray[newIndex]);
+        otherWindows.forEach(window => {
+          const rect = window.getBoundingClientRect();
+          
+          switch (e.key) {
+            case 'ArrowLeft': {
+              if (rect.right < currentRect.left && 
+                  rect.top < currentRect.bottom && 
+                  rect.bottom > currentRect.top) {
+                const distance = currentRect.left - rect.right;
+                if (distance < minDistance) {
+                  minDistance = distance;
+                  nextWindow = window;
+                }
+              }
+              break;
+            }
+            case 'ArrowRight': {
+              if (rect.left > currentRect.right && 
+                  rect.top < currentRect.bottom && 
+                  rect.bottom > currentRect.top) {
+                const distance = rect.left - currentRect.right;
+                if (distance < minDistance) {
+                  minDistance = distance;
+                  nextWindow = window;
+                }
+              }
+              break;
+            }
+            case 'ArrowUp': {
+              if (rect.bottom < currentRect.top && 
+                  rect.left < currentRect.right && 
+                  rect.right > currentRect.left) {
+                const distance = currentRect.top - rect.bottom;
+                if (distance < minDistance) {
+                  minDistance = distance;
+                  nextWindow = window;
+                }
+              }
+              break;
+            }
+            case 'ArrowDown': {
+              if (rect.top > currentRect.bottom && 
+                  rect.left < currentRect.right && 
+                  rect.right > currentRect.left) {
+                const distance = rect.top - currentRect.bottom;
+                if (distance < minDistance) {
+                  minDistance = distance;
+                  nextWindow = window;
+                }
+              }
+              break;
+            }
+          }
+        });
+
+        if (nextWindow) {
+          setSelectedWindow(nextWindow);
+          setActiveWindow(nextWindow);
         }
       }
 
@@ -174,8 +219,7 @@
         // Only affect windows in the same row
         const sameRowWindows = others.filter(w => {
           const r = w.getBoundingClientRect();
-          const sameRow = Math.abs(r.top - rect.top) < gaps && Math.abs(r.height - rect.height) < gaps;
-          return sameRow;
+          return Math.abs(r.top - rect.top) < gaps && Math.abs(r.height - rect.height) < gaps;
         });
 
         if (action === 'grow-width') {
@@ -185,7 +229,6 @@
           });
           
           if (rightWindows.length > 0) {
-            // Grow to the right, pushing other windows
             window.style.width = `${rect.width + resizeAmount}px`;
             rightWindows.forEach(w => {
               const r = w.getBoundingClientRect();
@@ -199,9 +242,8 @@
             return Math.abs(r.left - rect.right) <= gaps;
           });
           
-          if (rightWindows.length > 0 && rect.width > 300) { // Minimum width
+          if (rightWindows.length > 0 && rect.width > 300) {
             const shrinkAmount = Math.min(resizeAmount, rect.width - 300);
-            // Shrink from right, pulling other windows
             window.style.width = `${rect.width - shrinkAmount}px`;
             rightWindows.forEach(w => {
               const r = w.getBoundingClientRect();
@@ -214,8 +256,7 @@
         // Only affect windows in the same column
         const sameColumnWindows = others.filter(w => {
           const r = w.getBoundingClientRect();
-          const sameColumn = Math.abs(r.left - rect.left) < gaps && Math.abs(r.width - rect.width) < gaps;
-          return sameColumn;
+          return Math.abs(r.left - rect.left) < gaps && Math.abs(r.width - rect.width) < gaps;
         });
 
         if (action === 'grow-height') {
@@ -225,27 +266,28 @@
           });
           
           if (bottomWindows.length > 0) {
-            // Grow downward, pushing other windows
-            window.style.height = `${rect.height + resizeAmount}px`;
+            const newHeight = rect.height + resizeAmount;
+            window.style.height = `${newHeight}px`;
+            
             bottomWindows.forEach(w => {
               const r = w.getBoundingClientRect();
-              w.style.top = `${r.top + resizeAmount}px`;
+              w.style.top = `${rect.bottom + gaps}px`;
               w.style.height = `${r.height - resizeAmount}px`;
             });
           }
-        } else {
+        } else if (action === 'shrink-height') {
           const bottomWindows = sameColumnWindows.filter(w => {
             const r = w.getBoundingClientRect();
             return Math.abs(r.top - rect.bottom) <= gaps;
           });
           
-          if (bottomWindows.length > 0 && rect.height > 200) { // Minimum height
+          if (bottomWindows.length > 0 && rect.height > 200) {
             const shrinkAmount = Math.min(resizeAmount, rect.height - 200);
-            // Shrink from bottom, pulling other windows
             window.style.height = `${rect.height - shrinkAmount}px`;
+            
             bottomWindows.forEach(w => {
               const r = w.getBoundingClientRect();
-              w.style.top = `${r.top - shrinkAmount}px`;
+              w.style.top = `${rect.bottom - shrinkAmount + gaps}px`;
               w.style.height = `${r.height + shrinkAmount}px`;
             });
           }
